@@ -1,13 +1,14 @@
 from launch import LaunchDescription
-from launch_ros.actions import Node
+from launch.actions import ExecuteProcess
 
 
 def generate_launch_description():
+    # The perception node is an ament_python package: its entry-point script
+    # is installed into bin/, which `Node()` can't resolve (it looks in
+    # lib/<pkg>/). Run it via ExecuteProcess instead.
     return LaunchDescription([
-        Node(
-            package='{{project_name}}_perception_node',
-            executable='perception_node',
-            name='perception_node',
+        ExecuteProcess(
+            cmd=['perception_node'],
             output='screen',
         ),
     ])

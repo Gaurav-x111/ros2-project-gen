@@ -1,10 +1,8 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, ExecuteProcess
 from launch.conditions import IfCondition
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
@@ -23,11 +21,11 @@ def generate_launch_description():
         'use_python', default_value='true',
         description='Launch Python node')
 
-    # Nodes
-    rust_node = Node(
-        package='{{ name }}_rust_node',
-        executable='{{ name }}_rust_node',
-        name='{{ name }}_rust_node',
+    # Rust and Python nodes install their executables into bin/, which
+    # `Node()` can't resolve (it looks in lib/<pkg>/). Run them via
+    # ExecuteProcess; the ament_prefix_path puts them on PATH after sourcing.
+    rust_node = ExecuteProcess(
+        cmd=['{{ name }}_rust_node'],
         output='screen',
         condition=IfCondition(use_rust),
     )
@@ -48,18 +46,14 @@ def generate_launch_description():
         condition=IfCondition(use_cpp),
     )
 
-    python_talker = Node(
-        package='{{ name }}_python_node',
-        executable='talker',
-        name='{{ name }}_python_talker',
+    python_talker = ExecuteProcess(
+        cmd=['talker'],
         output='screen',
         condition=IfCondition(use_python),
     )
 
-    python_listener = Node(
-        package='{{ name }}_python_node',
-        executable='listener',
-        name='{{ name }}_python_listener',
+    python_listener = ExecuteProcess(
+        cmd=['listener'],
         output='screen',
         condition=IfCondition(use_python),
     )

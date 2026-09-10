@@ -18,15 +18,35 @@ defaults:
 
 jobs:
   # ---------------------------------------------------------------------
-  # Build the ros2-project-gen binary once, share it across the matrix
+  # Run unit + integration tests on the host runner (fast, no cross-distro
+  # concerns).
   # ---------------------------------------------------------------------
-  build-generator:
+  tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - name: Run unit + integration tests
         run: cargo test --release
+
+  # ---------------------------------------------------------------------
+  # Build the ros2-project-gen binary inside the OLDEST container. A binary
+  # built on Ubuntu 24.04 (GH default runner, glibc 2.39) cannot run in the
+  # humble/iron containers (Ubuntu 22.04, glibc 2.35). Building on humble
+  # yields a binary that runs on humble, iron, and jazzy.
+  # ---------------------------------------------------------------------
+  build-generator:
+    runs-on: ubuntu-latest
+    container:
+      image: osrf/ros:humble-desktop
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
+          echo "/root/.cargo/bin" >> "$GITHUB_PATH"
+      - name: Build release binary
+        run: cargo build --release
       - uses: actions/upload-artifact@v4
         with:
           name: ros2-project-gen-bin
