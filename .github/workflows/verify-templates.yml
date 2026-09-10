@@ -44,7 +44,8 @@ jobs:
       - name: Install Rust and build binary
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
-          export PATH="/root/.cargo/bin:$PATH"
+          export PATH="$HOME/.cargo/bin:$PATH"
+          which cargo && cargo --version
           cargo build --release
       - uses: actions/upload-artifact@v4
         with:
