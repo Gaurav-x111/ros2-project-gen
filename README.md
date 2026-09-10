@@ -147,7 +147,7 @@ Download the archive for your platform and run it directly — no Rust toolchain
 
 ```bash
 # Linux x86_64
-curl -L https://github.com/<YOUR-USERNAME>/ros2-project-gen/releases/latest/download/ros2-project-gen-x86_64-unknown-linux-gnu.tar.gz \
+curl -L https://github.com/Gaurav-x111/ros2-project-gen/releases/latest/download/ros2-project-gen-x86_64-unknown-linux-gnu.tar.gz \
   | tar xz -C /usr/local/bin/
 ```
 
@@ -156,7 +156,7 @@ Available targets: `x86_64-unknown-linux-gnu`, `aarch64-unknown-linux-gnu`, `aar
 ### Option 3 — From source
 
 ```bash
-git clone https://github.com/<YOUR-USERNAME>/ros2-project-gen.git
+git clone https://github.com/Gaurav-x111/ros2-project-gen.git
 cd ros2-project-gen
 cargo install --path .
 ```
