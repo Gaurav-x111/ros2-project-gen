@@ -1,4 +1,4 @@
-use crate::doctor::run_doctor;
+use crate::doctor::{print_template_checks, run_doctor};
 use crate::error::ProjectGenError;
 use crate::generator::ProjectGenerator;
 use clap::{Parser, Subcommand};
@@ -31,8 +31,13 @@ pub enum Commands {
     },
     /// List available templates
     List,
-    /// Check system dependencies
-    Doctor,
+    /// Check system dependencies (optionally per-template)
+    Doctor {
+        /// Also check dependencies required by this template
+        /// (ai_perception, matlab_bridge, visualization, perception, minimal_ros2)
+        #[arg(short, long)]
+        template: Option<String>,
+    },
 }
 
 use colored::Colorize;
@@ -323,8 +328,12 @@ impl Cli {
                     }
                 }
             }
-            Commands::Doctor => {
+            Commands::Doctor { template } => {
                 run_doctor()?;
+                if let Some(t) = template {
+                    println!();
+                    print_template_checks(t);
+                }
             }
         }
         Ok(())

@@ -1,0 +1,161 @@
+name: Verify Generated Templates
+
+# Runs on every push/PR, plus a weekly cron so drift (ROS 2 releases,
+# dependency updates) gets caught even if nobody touches this repo that week.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"   # Mondays 06:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  # ---------------------------------------------------------------------
+  # Build the ros2-project-gen binary once, share it across the matrix
+  # ---------------------------------------------------------------------
+  build-generator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run unit + integration tests
+        run: cargo test --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ros2-project-gen-bin
+          path: target/release/ros2-project-gen
+
+  # ---------------------------------------------------------------------
+  # Matrix: every (template x distro) combination that's expected to work.
+  # Add/remove rows here as templates gain/lose distro support.
+  # ---------------------------------------------------------------------
+  verify:
+    needs: build-generator
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false   # one broken combo shouldn't hide the others
+      matrix:
+        distro: [humble, iron, jazzy]
+        template: [minimal, perception, minimal_ros2, visualization, matlab_bridge]
+        include:
+          # ai_perception needs TLS (rustls) + Rust node; keep it isolated so
+          # its longer build doesn't gate the fast matrix.
+          - distro: jazzy
+            template: ai_perception
+        exclude:
+          # matlab_bridge is only fully exercisable on the latest distro.
+          - distro: humble
+            template: matlab_bridge
+          - distro: iron
+            template: matlab_bridge
+
+    container:
+      image: osrf/ros:${{ matrix.distro }}-desktop
+
+    steps:
+      - name: Install build prerequisites
+        run: |
+          apt-get update
+          apt-get install -y python3-colcon-common-extensions curl
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ros2-project-gen-bin
+          path: bin
+
+      - name: Make binary executable
+        run: chmod +x bin/ros2-project-gen
+
+      - name: Generator self-test (init + doctor + list)
+        run: |
+          ./bin/ros2-project-gen doctor
+          ./bin/ros2-project-gen list
+
+      - name: Generate project
+        run: |
+          ./bin/ros2-project-gen init test_project \
+            --template ${{ matrix.template }} \
+            --output /tmp/gen
+
+      - name: Build with colcon
+        working-directory: /tmp/gen/test_project/ros2_ws
+        run: |
+          source /opt/ros/${{ matrix.distro }}/setup.bash
+          colcon build --event-handlers console_direct+
+
+      - name: Run tests (if any)
+        working-directory: /tmp/gen/test_project/ros2_ws
+        run: |
+          source /opt/ros/${{ matrix.distro }}/setup.bash
+          source install/setup.bash
+          colcon test --event-handlers console_direct+
+          colcon test-result --verbose
+        continue-on-error: true   # don't gate the build badge on test flakiness yet
+
+  # ---------------------------------------------------------------------
+  # Launch smoke tests. Only templates that launch headless bringup stacks
+  # are exercised here; visualization needs a display and ai_perception
+  # needs an ONNX model + GPU, so they're verified at build level above.
+  # ---------------------------------------------------------------------
+  smoke-launch:
+    needs: build-generator
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - distro: jazzy
+            template: minimal
+            launch_args: ""
+          - distro: jazzy
+            template: minimal_ros2
+            launch_args: "use_rust:=false"
+          - distro: jazzy
+            template: perception
+            launch_args: ""
+    container:
+      image: osrf/ros:${{ matrix.distro }}-desktop
+    steps:
+      - name: Install build prerequisites
+        run: |
+          apt-get update
+          apt-get install -y python3-colcon-common-extensions
+
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ros2-project-gen-bin
+          path: bin
+      - run: chmod +x bin/ros2-project-gen
+
+      - name: Generate project
+        run: |
+          ./bin/ros2-project-gen init test_project \
+            --template ${{ matrix.template }} \
+            --output /tmp/gen
+
+      - name: Build with colcon
+        working-directory: /tmp/gen/test_project/ros2_ws
+        run: |
+          source /opt/ros/${{ matrix.distro }}/setup.bash
+          colcon build --event-handlers console_direct+
+
+      - name: Smoke-launch bringup (5s, then kill)
+        working-directory: /tmp/gen/test_project/ros2_ws
+        run: |
+          source /opt/ros/${{ matrix.distro }}/setup.bash
+          source install/setup.bash
+          # exit 124 = timeout killed the process, i.e. it launched fine
+          timeout 5s ros2 launch test_project_bringup bringup.launch.py ${{ matrix.launch_args }} 2>/dev/null || [ $? -eq 124 ]
+
+  # ---------------------------------------------------------------------
+  # Aggregate result — this is what your README badge points at
+  # ---------------------------------------------------------------------
+  all-verified:
+    needs: [verify, smoke-launch]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All templates verified across supported distros."

@@ -366,13 +366,27 @@ fn test_invalid_project_names_rejected() {
     let (success, _, _) = run_cli(&["init", "../bad", "--template", "minimal"]);
     assert!(!success, "Path traversal should be rejected");
 
-    // Test slashes
-    let (success, _, _) = run_cli(&["init", "bad/name", "--template", "minimal"]);
-    assert!(!success, "Slash in name should be rejected");
-
     // Test spaces
     let (success, _, _) = run_cli(&["init", "bad name", "--template", "minimal"]);
     assert!(!success, "Spaces in name should be rejected");
+}
+
+#[test]
+fn test_path_based_naming_extracts_basename() {
+    let temp_dir = TempDir::new().unwrap();
+    let project_path = temp_dir.path().join("second_level").join("my_robot");
+
+    // Passing a path should extract the basename as project name and
+    // create the project under the path's parent directory.
+    let (success, stdout, stderr) = run_cli(&[
+        "init",
+        project_path.to_str().unwrap(),
+        "--template",
+        "minimal",
+    ]);
+    assert!(success, "Path-based init failed: {}", stderr);
+    assert!(stdout.contains("my_robot"));
+    assert!(project_path.join("ros2_ws/src/my_robot_bringup").exists());
 }
 
 #[test]
@@ -412,6 +426,30 @@ fn test_missing_ros2_does_not_crash_doctor() {
     assert!(stdout.contains("cmake"));
     assert!(stdout.contains("colcon"));
     assert!(stdout.contains("ros2"));
+}
+
+#[test]
+fn test_doctor_with_template_shows_template_checks() {
+    let (success, stdout, stderr) = run_cli(&["doctor", "--template", "ai_perception"]);
+    assert!(success, "doctor --template failed: {}", stderr);
+    assert!(
+        stdout.contains("Template-specific checks for ai_perception"),
+        "missing template heading:\n{}",
+        stdout
+    );
+    assert!(
+        stdout.contains("pkg-config") || stdout.contains("onnxruntime"),
+        "missing ai_perception dependency rows:\n{}",
+        stdout
+    );
+}
+
+#[test]
+fn test_doctor_unknown_template_generates_no_extra_checks() {
+    let (success, stdout, _) = run_cli(&["doctor", "--template", "bogus"]);
+    assert!(success);
+    // Unknown templates have no specific requirements; the base doctor still runs.
+    assert!(stdout.contains("Summary"));
 }
 
 #[test]

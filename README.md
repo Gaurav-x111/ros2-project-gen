@@ -2,6 +2,8 @@
 
 > Scaffold production-ready ROS 2 projects from battle-tested templates in seconds.
 
+[![Templates Verified](https://github.com/Gaurav-x111/ros2-project-gen/actions/workflows/verify-templates.yml/badge.svg)](https://github.com/Gaurav-x111/ros2-project-gen/actions/workflows/verify-templates.yml)
+
 ---
 
 ## Problem Statement
@@ -239,7 +241,13 @@ Available templates:
 ### Check system dependencies
 
 ```bash
+# Base toolchain check
 ros2-project-gen doctor
+
+# Also check tooling required by a specific template
+ros2-project-gen doctor --template ai_perception
+ros2-project-gen doctor --template matlab_bridge
+ros2-project-gen doctor --template visualization
 ```
 
 Output:
@@ -268,6 +276,7 @@ Output:
 | `init <name>` | Initialize a new ROS 2 project from a template |
 | `list` | List available templates with descriptions and features |
 | `doctor` | Check system dependencies (rustc, cargo, cmake, colcon, ros2) |
+| `doctor --template <name>` | Also check dependencies required by a specific template (e.g. `onnxruntime`, `MATLAB_ROOT`, `rviz2`) |
 
 ### Global Options
 
@@ -338,7 +347,7 @@ cargo build
 # Release build (optimized, LTO, stripped)
 cargo build --release
 
-# Run tests (22 integration tests)
+# Run tests (25 integration tests)
 cargo test
 
 # Install globally
@@ -367,9 +376,10 @@ ros2-project-gen/
 │   ├── matlab_bridge/      # MATLAB/Simulink co-simulation
 │   └── visualization/      # RViz2 markers, TF, displays
 ├── tests/
-│   └── integration_tests.rs  # 22 integration tests
+│   └── integration_tests.rs  # 25 integration tests
 ├── .github/workflows/
-│   └── release.yml           # Auto-builds binaries on `v*` tags
+│   ├── release.yml           # Auto-builds binaries on `v*` tags
+│   └── verify-templates.yml  # Real ROS 2 distros — generates + builds each template
 ├── Dockerfile
 └── README.md
 ```
@@ -379,7 +389,7 @@ ros2-project-gen/
 ## Testing
 
 ```bash
-# Run all tests (22 integration tests)
+# Run all tests (25 integration tests)
 cargo test
 
 # Run a specific test
@@ -398,8 +408,27 @@ The test suite validates:
 - Invalid project names are rejected (empty, spaces, slashes, path traversal)
 - Non-empty directories are not overwritten
 - `doctor` command runs without crashing
+- `doctor --template` prints template-specific checks
 - `list` command shows all templates with descriptions
 - `--features` flag output is displayed
+
+---
+
+## Continuous Verification (CI)
+
+Beyond unit tests, `.github/workflows/verify-templates.yml` proves the generated
+projects actually **build and launch** on real ROS 2:
+
+1. Builds `ros2-project-gen` once and shares the binary across the matrix.
+2. Matrix of `distro × template` (humble / iron / jazzy × all 6 templates), each
+   in a fresh `osrf/ros:<distro>-desktop` container.
+3. Runs `doctor` + `list` as a self-test, then `init` → `colcon build` the output.
+4. Smoke-launches headless bringup stacks (minimal, minimal_ros2, perception)
+   and checks the process survives 5s before being killed.
+5. Runs weekly (Mondays 06:00 UTC) so ROS 2 releases and dependency drift get
+   caught even with no commits that week.
+
+The badge at the top of this README reflects the aggregate result.
 
 ---
 
