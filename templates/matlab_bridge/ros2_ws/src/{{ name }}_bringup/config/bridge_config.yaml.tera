@@ -1,0 +1,37 @@
+# {{ name }} MATLAB Bridge Configuration
+bridge:
+  # MATLAB engine connection
+  matlab_engine:
+    host: "localhost"
+    port: 5555
+    timeout_sec: 10.0
+
+  # Topic mappings (ROS 2 <-> MATLAB)
+  topics:
+    # ROS 2 -> MATLAB
+    - ros_topic: "{{ name }}/camera/image_raw"
+      matlab_variable: "cameraImage"
+      direction: "ros_to_matlab"
+
+    - ros_topic: "{{ name }}/lidar/points"
+      matlab_variable: "pointCloudData"
+      direction: "ros_to_matlab"
+
+    - ros_topic: "{{ name }}/robot/pose"
+      matlab_variable: "robotPose"
+      direction: "ros_to_matlab"
+
+    # MATLAB -> ROS 2
+    - ros_topic: "{{ name }}/cmd_vel"
+      matlab_variable: "cmdVelocity"
+      direction: "matlab_to_ros"
+
+    - ros_topic: "{{ name }}/trajectory/waypoint"
+      matlab_variable: "waypoint"
+      direction: "matlab_to_ros"
+
+  # Simulink model (optional)
+  simulink:
+    enabled: false
+    model_path: ""
+    sample_time_sec: 0.01

@@ -1,0 +1,46 @@
+use rclrs::{Context, Node, Publisher, Subscription, QoSProfile, QoSReliabilityPolicy, QoSDurabilityPolicy, QoSHistoryPolicy};
+use std_msgs::msg::String as RosString;
+use std::sync::Arc;
+use tokio::time::{interval, Duration};
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let context = Context::new(std::env::args())?;
+    let node = Node::new(&context, "{{ name }}_rust_node")?;
+
+    // Publisher
+    let publisher = node.create_publisher::<RosString>(
+        "{{ name }}/chatter",
+        QoSProfile::default()
+            .reliability(QoSReliabilityPolicy::Reliable)
+            .durability(QoSDurabilityPolicy::Volatile)
+            .history(QoSHistoryPolicy::KeepLast(10)),
+    )?;
+
+    // Subscription
+    let _subscription = node.create_subscription::<RosString>(
+        "{{ name }}/chatter",
+        QoSProfile::default()
+            .reliability(QoSReliabilityPolicy::Reliable)
+            .durability(QoSDurabilityPolicy::Volatile)
+            .history(QoSHistoryPolicy::KeepLast(10)),
+        move |msg: RosString| {
+            println!("Rust node received: {}", msg.data);
+        },
+    )?;
+
+    // Timer-based publishing
+    let mut count = 0;
+    let mut interval = interval(Duration::from_secs(1));
+    
+    loop {
+        interval.tick().await;
+        
+        let mut msg = RosString::default();
+        msg.data = format!("Hello from Rust node #{}", count);
+        
+        publisher.publish(&msg)?;
+        println!("Rust node published: {}", msg.data);
+        
+        count += 1;
+    }
+}

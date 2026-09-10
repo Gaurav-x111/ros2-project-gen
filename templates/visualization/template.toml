@@ -1,0 +1,5 @@
+name = "visualization"
+description = "RViz2 visualization with markers, TF, image displays, and interactive tools"
+version = "0.1.0"
+required_features = ["ros2", "visualization"]
+optional_features = ["lidar", "image", "docker", "ci", "docs"]

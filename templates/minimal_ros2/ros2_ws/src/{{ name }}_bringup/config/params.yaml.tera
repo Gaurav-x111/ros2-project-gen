@@ -1,0 +1,21 @@
+# {{ name }} Configuration
+
+# Node parameters
+rust_node:
+  publish_rate: 1.0
+  topic_name: "{{ name }}/chatter"
+
+cpp_node:
+  publish_rate: 1.0
+  topic_name: "{{ name }}/chatter"
+
+python_node:
+  publish_rate: 1.0
+  topic_name: "{{ name }}/chatter"
+
+# QoS settings
+qos:
+  reliability: "reliable"
+  durability: "volatile"
+  history: "keep_last"
+  depth: 10

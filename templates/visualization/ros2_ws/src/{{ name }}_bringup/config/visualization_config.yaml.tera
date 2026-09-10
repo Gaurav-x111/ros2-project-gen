@@ -1,0 +1,10 @@
+# {{ name }} Visualization Launch Configuration
+visualization:
+  rviz_config: "default"
+  marker_topic: "/{{ name }}/visualization/markers"
+  enable_grid: true
+  enable_tf: true
+  enable_markers: true
+  enable_robot_model: false
+  enable_pointcloud: false
+  enable_image: false

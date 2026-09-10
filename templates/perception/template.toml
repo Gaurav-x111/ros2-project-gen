@@ -1,0 +1,5 @@
+name = "perception"
+description = "Perception pipeline with Python ROS2 node"
+version = "0.1.0"
+required_features = ["ros2", "perception"]
+optional_features = ["docker", "ci", "docs"]

@@ -1,0 +1,28 @@
+from setuptools import setup, find_packages
+
+package_name = '{{ name }}_visualization_node'
+
+setup(
+    name=package_name,
+    version='0.1.0',
+    packages=find_packages(),
+    package_dir={'': '.'},
+    data_files=[
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
+    ],
+    install_requires=['setuptools'],
+    zip_safe=True,
+    maintainer='user',
+    maintainer_email='user@example.com',
+    description='Visualization node for {{ name }}',
+    license='MIT',
+    tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+            'marker_publisher = visualization_node.marker_publisher:main',
+            'tf_broadcaster = visualization_node.tf_broadcaster:main',
+        ],
+    },
+)

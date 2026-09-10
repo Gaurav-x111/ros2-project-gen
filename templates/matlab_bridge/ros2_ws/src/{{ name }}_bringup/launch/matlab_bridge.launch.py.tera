@@ -1,0 +1,26 @@
+import os
+from launch import LaunchDescription
+from launch_ros.actions import Node
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
+
+
+def generate_launch_description():
+    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
+
+    matlab_bridge_node = Node(
+        package='{{ name }}_matlab_bridge',
+        executable='matlab_bridge_node',
+        name='matlab_bridge_node',
+        output='screen',
+        parameters=[{'use_sim_time': use_sim_time}],
+    )
+
+    return LaunchDescription([
+        DeclareLaunchArgument(
+            'use_sim_time',
+            default_value='false',
+            description='Use simulation clock'
+        ),
+        matlab_bridge_node,
+    ])

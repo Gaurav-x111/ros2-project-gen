@@ -1,0 +1,86 @@
+#include <chrono>
+#include <memory>
+#include <string>
+#include <sstream>
+#include <vector>
+
+#include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/string.hpp"
+#include "sensor_msgs/msg/image.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+
+using namespace std::chrono_literals;
+
+class MatlabBridgeNode : public rclcpp::Node
+{
+public:
+    MatlabBridgeNode()
+    : Node("matlab_bridge_node")
+    {
+        // Publishers — data FROM ROS 2 TO MATLAB
+        image_pub_ = this->create_publisher<sensor_msgs::msg::Image>(
+            "{{ name }}/camera/image_raw", 10);
+        pointcloud_pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>(
+            "{{ name }}/lidar/points", 10);
+        pose_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>(
+            "{{ name }}/robot/pose", 10);
+
+        // Subscribers — data FROM MATLAB TO ROS 2
+        cmd_vel_sub_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
+            "{{ name }}/cmd_vel", 10,
+            std::bind(&MatlabBridgeNode::cmd_vel_callback, this, std::placeholders::_1));
+
+        trajectory_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
+            "{{ name }}/trajectory/waypoint", 10,
+            std::bind(&MatlabBridgeNode::trajectory_callback, this, std::placeholders::_1));
+
+        // Timer for simulated sensor data (replace with real drivers)
+        timer_ = this->create_wall_timer(100ms, std::bind(&MatlabBridgeNode::timer_callback, this));
+
+        RCLCPP_INFO(this->get_logger(), "MATLAB bridge node started for '{{ name }}'");
+        RCLCPP_INFO(this->get_logger(), "Publishing:  camera, pointcloud, pose");
+        RCLCPP_INFO(this->get_logger(), "Subscribing: cmd_vel, trajectory/waypoint");
+    }
+
+private:
+    void cmd_vel_callback(const geometry_msgs::msg::TwistStamped::SharedPtr msg)
+    {
+        RCLCPP_DEBUG(this->get_logger(),
+            "cmd_vel: linear=%.2f angular=%.2f",
+            msg->twist.linear.x, msg->twist.angular.z);
+    }
+
+    void trajectory_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
+    {
+        RCLCPP_INFO(this->get_logger(),
+            "Waypoint received: [%.2f, %.2f, %.2f]",
+            msg->pose.position.x, msg->pose.position.y, msg->pose.position.z);
+    }
+
+    void timer_callback()
+    {
+        // Publish simulated pose
+        auto pose_msg = geometry_msgs::msg::PoseStamped();
+        pose_msg.header.stamp = this->now();
+        pose_msg.header.frame_id = "map";
+        pose_msg.pose.orientation.w = 1.0;
+        pose_pub_->publish(pose_msg);
+    }
+
+    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr image_pub_;
+    rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_pub_;
+    rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_pub_;
+    rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr cmd_vel_sub_;
+    rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr trajectory_sub_;
+    rclcpp::TimerBase::SharedPtr timer_;
+};
+
+int main(int argc, char * argv[])
+{
+    rclcpp::init(argc, argv);
+    rclcpp::spin(std::make_shared<MatlabBridgeNode>());
+    rclcpp::shutdown();
+    return 0;
+}

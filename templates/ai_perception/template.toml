@@ -1,0 +1,6 @@
+name = "ai_perception"
+description = "ROS2 AI perception stack with ML inference (YOLO, SAM) + point cloud"
+version = "0.1.0"
+required_features = ["ros2", "ml", "pointcloud"]
+optional_features = ["lidar", "docker", "ci", "docs", "tensorrt"]
+dependencies = { ros2_packages = ["rclrs", "rclpy", "sensor_msgs", "vision_msgs", "cv_bridge"], system_packages = ["libopencv-dev", "libopen3d-dev", "onnxruntime"], python_packages = ["onnxruntime", "torch", "torchvision", "ultralytics", "open3d", "numpy", "opencv-python"], rust_crates = ["rclrs", "tokio", "ort", "image", "ndarray"], cmake_modules = ["OpenCV", "Open3D", "onnxruntime"] }

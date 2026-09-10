@@ -1,0 +1,15 @@
+# {{project_name}} Configuration Parameters
+
+robot:
+  name: "{{project_name}}"
+  type: "differential_drive"
+  wheel_radius: 0.05
+  wheel_base: 0.3
+
+sensors:
+  imu:
+    enabled: true
+    frame_id: "imu_link"
+  lidar:
+    enabled: false
+    frame_id: "laser_link"

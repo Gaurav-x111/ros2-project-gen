@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<rviz_config version="1">
+  <Clusters>
+    <Property name="BackgroundColor" value="48;48;48" type="Color"/>
+    <Property name="Fixed Frame" value="map" type="String"/>
+    <Property name="Frame Rate" value="30" type="int"/>
+  </Clusters>
+  <Displays>
+    <Class name="rviz_default_plugins/Grid">
+      <Bool name="Enabled" value="true"/>
+      <Property name="Color" value="160;160;160" type="Color"/>
+      <Property name="Cell Size" value="1.0" type="double"/>
+      <Property name="Normal Cell Count" value="0" type="int"/>
+      <Property name="Offset" value="0;0;0" type="Vector"/>
+      <Property name="Plane Cell Count" value="20" type="int"/>
+      <Property name="Reference Frame" value="<Fixed Frame>" type="String"/>
+      <Property name="Plane" value="XY" type="String"/>
+    </Class>
+    <Class name="rviz_default_plugins/TF">
+      <Bool name="Enabled" value="true"/>
+      <Property name="Show Arrows" value="true" type="Bool"/>
+      <Property name="Show Axes" value="true" type="Bool"/>
+      <Property name="Show Names" value="true" type="Bool"/>
+      <Property name="Frame Timeout" value="15" type="int"/>
+      <Property name="Update Interval" value="0" type="int"/>
+      <Property name="Frame" value="" type="String"/>
+    </Class>
+    <Class name="rviz_default_plugins/MarkerArray">
+      <Bool name="Enabled" value="true"/>
+      <Property name="Topic" value="/{{ name }}/visualization/markers" type="String"/>
+      <Property name="Queue Size" value="100" type="int"/>
+      <Property name="Value" value="true" type="Bool"/>
+    </Class>
+    <Class name="rviz_default_plugins/RobotModel">
+      <Bool name="Enabled" value="false"/>
+      <Property name="Robot Description" value="robot_description" type="String"/>
+    </Class>
+    <Class name="rviz_default_plugins/PointCloud2">
+      <Bool name="Enabled" value="false"/>
+      <Property name="Topic" value="/{{ name }}/lidar/points" type="String"/>
+      <Property name="Color Transformer" value="FlatColor" type="String"/>
+      <Property name="Color" value="0;255;0" type="Color"/>
+    </Class>
+    <Class name="rviz_default_plugins/Image">
+      <Bool name="Enabled" value="false"/>
+      <Property name="Topic" value="/{{ name }}/camera/image_raw" type="String"/>
+      <Property name="Transport Hint" value="raw" type="String"/>
+    </Class>
+  </Displays>
+  <ToolPanels>
+    <Class name="rviz_default_plugins/Selection">
+      <Bool name="Enabled" value="true"/>
+    </Class>
+    <Class name="rviz_default_plugins/Tool Properties">
+      <Bool name="Enabled" value="true"/>
+    </Class>
+    <Class name="rviz_default_plugins/Views">
+      <Bool name="Enabled" value="true"/>
+    </Class>
+  </ToolPanels>
+  <Views>
+    <Class name="rviz_default_plugins/TopDownOrtho">
+      <Bool name="Enabled" value="true"/>
+      <Property name="Near Clip Distance" value="0.01" type="double"/>
+      <Property name="Target Frame" value="" type="String"/>
+      <Property name="Focal Point" value="0;0;0" type="Vector"/>
+      <Property name="Focal Shape Fixed Size" value="true" type="Bool"/>
+      <Property name="Focal Shape Size" value="0.05" type="double"/>
+      <Property name="Name" value="Top Down Orthographic" type="String"/>
+      <Property name="Orthographic" value="true" type="Bool"/>
+      <Property name="Scale" value="10" type="double"/>
+      <Property name="Value" value="TopDownOrtho (rviz_default_plugins)" type="String"/>
+    </Class>
+  </Views>
+</rviz_config>

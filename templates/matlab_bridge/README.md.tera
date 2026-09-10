@@ -1,0 +1,47 @@
+# {{ name }} MATLAB Bridge
+
+MATLAB/Simulink ROS 2 bridge for co-simulation and algorithm prototyping.
+
+## Requirements
+
+- ROS 2 (Humble, Iron, or Jazzy)
+- MATLAB R2023b+ with ROS 2 Toolbox
+- CMake >= 3.8
+- colcon
+
+## Building
+
+```bash
+cd ros2_ws
+colcon build
+source install/setup.bash
+```
+
+## Running
+
+```bash
+ros2 launch {{ name }}_bringup matlab_bridge.launch.py
+```
+
+## MATLAB Setup
+
+1. Open MATLAB
+2. Install ROS 2 Toolbox: `ver ROS2`
+3. Connect to ROS 2 network:
+   ```matlab
+   rosinit
+   ```
+4. Subscribe to bridge topics:
+   ```matlab
+   poseSub = rossubscriber('/{{ name }}/robot/pose');
+   ```
+5. Publish commands:
+   ```matlab
+   [cmdPub, cmdMsg] = rospublisher('/{{ name }}/cmd_vel', 'geometry_msgs/TwistStamped');
+   cmdMsg.Twist.Linear.X = 0.5;
+   send(cmdPub, cmdMsg);
+   ```
+
+## License
+
+MIT

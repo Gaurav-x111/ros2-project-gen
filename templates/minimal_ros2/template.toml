@@ -1,0 +1,6 @@
+name = "minimal_ros2"
+description = "Minimal ROS2 workspace with Rust/Python/C++ nodes"
+version = "0.1.0"
+required_features = ["ros2"]
+optional_features = ["docker", "ci", "docs"]
+dependencies = { ros2_packages = ["rclrs", "rclpy", "std_msgs", "sensor_msgs"], system_packages = [], python_packages = [], rust_crates = ["rclrs", "tokio"], cmake_modules = [] }

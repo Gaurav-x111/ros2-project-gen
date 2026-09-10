@@ -1,0 +1,76 @@
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.conditions import IfCondition
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+
+
+def generate_launch_description():
+    # Launch arguments
+    use_rust = LaunchConfiguration('use_rust')
+    use_cpp = LaunchConfiguration('use_cpp')
+    use_python = LaunchConfiguration('use_python')
+
+    declare_use_rust = DeclareLaunchArgument(
+        'use_rust', default_value='true',
+        description='Launch Rust node')
+    declare_use_cpp = DeclareLaunchArgument(
+        'use_cpp', default_value='true',
+        description='Launch C++ node')
+    declare_use_python = DeclareLaunchArgument(
+        'use_python', default_value='true',
+        description='Launch Python node')
+
+    # Nodes
+    rust_node = Node(
+        package='{{ name }}_rust_node',
+        executable='{{ name }}_rust_node',
+        name='{{ name }}_rust_node',
+        output='screen',
+        condition=IfCondition(use_rust),
+    )
+
+    cpp_talker = Node(
+        package='{{ name }}_cpp_node',
+        executable='talker',
+        name='{{ name }}_cpp_talker',
+        output='screen',
+        condition=IfCondition(use_cpp),
+    )
+
+    cpp_listener = Node(
+        package='{{ name }}_cpp_node',
+        executable='listener',
+        name='{{ name }}_cpp_listener',
+        output='screen',
+        condition=IfCondition(use_cpp),
+    )
+
+    python_talker = Node(
+        package='{{ name }}_python_node',
+        executable='talker',
+        name='{{ name }}_python_talker',
+        output='screen',
+        condition=IfCondition(use_python),
+    )
+
+    python_listener = Node(
+        package='{{ name }}_python_node',
+        executable='listener',
+        name='{{ name }}_python_listener',
+        output='screen',
+        condition=IfCondition(use_python),
+    )
+
+    return LaunchDescription([
+        declare_use_rust,
+        declare_use_cpp,
+        declare_use_python,
+        rust_node,
+        cpp_talker,
+        cpp_listener,
+        python_talker,
+        python_listener,
+    ])

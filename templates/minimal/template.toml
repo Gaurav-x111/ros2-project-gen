@@ -1,0 +1,5 @@
+name = "minimal"
+description = "Minimal ROS2 workspace with bringup package"
+version = "0.1.0"
+required_features = ["ros2"]
+optional_features = ["docker", "ci", "docs"]

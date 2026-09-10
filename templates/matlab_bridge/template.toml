@@ -1,0 +1,5 @@
+name = "matlab_bridge"
+description = "MATLAB/Simulink ROS 2 bridge for co-simulation and algorithm prototyping"
+version = "0.1.0"
+required_features = ["ros2", "matlab"]
+optional_features = ["simulink", "docker", "ci", "docs"]

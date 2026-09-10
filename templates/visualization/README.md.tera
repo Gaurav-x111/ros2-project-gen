@@ -1,0 +1,47 @@
+# {{ name }} Visualization
+
+RViz2 visualization workspace with markers, TF, image displays, and interactive tools.
+
+## Requirements
+
+- ROS 2 (Humble, Iron, or Jazzy)
+- RViz2
+- CMake >= 3.8
+- colcon
+- Python 3
+
+## Building
+
+```bash
+cd ros2_ws
+colcon build
+source install/setup.bash
+```
+
+## Running
+
+```bash
+# Full visualization (markers + TF + RViz)
+ros2 launch {{ name }}_bringup visualization.launch.py
+
+# Individual nodes
+ros2 run {{ name }}_visualization_node marker_publisher
+ros2 run {{ name }}_visualization_node tf_broadcaster
+
+# Custom RViz config
+ros2 launch {{ name }}_bringup visualization.launch.py rviz_config:=/path/to/config.rviz
+```
+
+## What's Included
+
+- **Marker Publisher** — Publishes cubes, arrows, line strips, text labels
+- **TF Broadcaster** — Broadcasts map->odom->base_link->laser/camera transforms
+- **RViz Config** — Pre-configured with grid, TF, markers, and disabled-by-default pointcloud/image displays
+
+## Customization
+
+Edit `config/visualization_config.yaml` to enable/disable displays.
+
+## License
+
+MIT

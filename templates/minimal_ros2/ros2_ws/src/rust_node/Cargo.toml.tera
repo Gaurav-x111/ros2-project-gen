@@ -1,0 +1,10 @@
+[package]
+name = "{{ name }}_rust_node"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rclrs = "0.13"
+tokio = { version = "1.0", features = ["full"] }
+std_msgs = { path = "../../../../../../../opt/ros/{{ ros_distro }}/share/std_msgs" }
+sensor_msgs = { path = "../../../../../../../opt/ros/{{ ros_distro }}/share/sensor_msgs" }
