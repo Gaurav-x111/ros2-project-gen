@@ -4,6 +4,8 @@
 
 [![Templates Verified](https://github.com/Gaurav-x111/ros2-project-gen/actions/workflows/verify-templates.yml/badge.svg)](https://github.com/Gaurav-x111/ros2-project-gen/actions/workflows/verify-templates.yml)
 
+![ros2-project-gen install](demo/install.gif)
+
 ![ros2-project-gen demo](demo/demo.gif)
 
 ---
