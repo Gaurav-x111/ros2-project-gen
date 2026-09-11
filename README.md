@@ -4,6 +4,8 @@
 
 [![Templates Verified](https://github.com/Gaurav-x111/ros2-project-gen/actions/workflows/verify-templates.yml/badge.svg)](https://github.com/Gaurav-x111/ros2-project-gen/actions/workflows/verify-templates.yml)
 
+![ros2-project-gen demo](demo/demo.gif)
+
 ---
 
 ## Problem Statement
@@ -31,6 +33,14 @@ cd my_robot/ros2_ws && colcon build
 ```
 
 One command. Full project. Every time.
+
+---
+
+## Demo
+
+The GIF above walks through the full workflow: `--version` → `list` → `doctor` → `init` → `colcon build` on a multi-language workspace (`minimal_ros2`).
+
+> Regenerate with `./demo/generate.sh` ([asciinema](https://asciinema.org/) + [agg](https://github.com/asciinema/agg), plus ROS 2).
 
 ---
 
